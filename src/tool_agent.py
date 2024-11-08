@@ -1,5 +1,6 @@
 import json
 import re
+import os
 
 from colorama import Fore
 from dotenv import load_dotenv
@@ -53,7 +54,9 @@ class ToolAgent:
         tools: Tool | list[Tool],
         model: str = "llama3-groq-70b-8192-tool-use-preview",
     ) -> None:
-        self.client = Groq()
+        self.client = Groq(
+            api_key=os.getenv("GROQ_API_KEY")
+        )
         self.model = model
         self.tools = tools if isinstance(tools, list) else [tools]
         self.tools_dict = {tool.name: tool for tool in self.tools}
