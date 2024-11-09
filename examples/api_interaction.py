@@ -1,3 +1,4 @@
+# hacker_news.py
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
@@ -45,13 +46,3 @@ agent = ToolAgent([search_hackernews])
 # Example query
 response = agent.run("Find recent articles about Python")
 print(response)
-
-# Expected output format:
-[
-    {
-        'title': 'Python 3.12 Released',
-        'url': 'https://www.python.org/downloads/release/python-3120/',
-        'score': 1234
-    },
-    ...
-]

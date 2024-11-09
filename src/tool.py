@@ -1,6 +1,6 @@
 import json
-from typing import Callable
-
+from typing import Callable, List, Dict, Union, get_origin, get_args
+import typing
 
 def get_fn_signature(fn: Callable) -> dict:
     """
@@ -18,9 +18,21 @@ def get_fn_signature(fn: Callable) -> dict:
         "description": fn.__doc__,
         "parameters": {"properties": {}},
     }
-    schema = {
-        k: {"type": v.__name__} for k, v in fn.__annotations__.items() if k != "return"
-    }
+    
+    # Handle complex types
+    schema = {}
+    for k, v in fn.__annotations__.items():
+        if k != "return":
+            if hasattr(v, "__origin__"):  # For complex types like List, Dict
+                origin = get_origin(v)
+                args = get_args(v)
+                if origin == list:
+                    schema[k] = {"type": "List", "items_type": args[0].__name__}
+                elif origin == dict:
+                    schema[k] = {"type": "Dict", "key_type": args[0].__name__, "value_type": args[1].__name__}
+            else:  # For simple types
+                schema[k] = {"type": v.__name__}
+    
     fn_signature["parameters"]["properties"] = schema
     return fn_signature
 
@@ -38,23 +50,51 @@ def validate_arguments(tool_call: dict, tool_signature: dict) -> dict:
     """
     properties = tool_signature["parameters"]["properties"]
 
-    # TODO: This is overly simplified but enough for simple Tools.
+    # Extended type mapping
     type_mapping = {
         "int": int,
         "str": str,
         "bool": bool,
         "float": float,
+        "List": list,
+        "Dict": dict
     }
 
     for arg_name, arg_value in tool_call["arguments"].items():
-        expected_type = properties[arg_name].get("type")
+        type_info = properties[arg_name]
+        expected_type = type_info["type"]
 
-        if not isinstance(arg_value, type_mapping[expected_type]):
-            tool_call["arguments"][arg_name] = type_mapping[expected_type](arg_value)
+        # Handle basic types
+        if expected_type in ["int", "str", "bool", "float"]:
+            if not isinstance(arg_value, type_mapping[expected_type]):
+                tool_call["arguments"][arg_name] = type_mapping[expected_type](arg_value)
+        
+        # Handle List type
+        elif expected_type == "List":
+            if not isinstance(arg_value, list):
+                if isinstance(arg_value, str):
+                    # Try to parse string as JSON if it's a string representation of a list
+                    try:
+                        tool_call["arguments"][arg_name] = json.loads(arg_value)
+                    except json.JSONDecodeError:
+                        tool_call["arguments"][arg_name] = [arg_value]
+                else:
+                    tool_call["arguments"][arg_name] = [arg_value]
+        
+        # Handle Dict type
+        elif expected_type == "Dict":
+            if not isinstance(arg_value, dict):
+                if isinstance(arg_value, str):
+                    # Try to parse string as JSON if it's a string representation of a dict
+                    try:
+                        tool_call["arguments"][arg_name] = json.loads(arg_value)
+                    except json.JSONDecodeError:
+                        tool_call["arguments"][arg_name] = {}
 
     return tool_call
 
 
+# Rest of the code remains the same
 class Tool:
     """
     A class representing a tool that wraps a callable and its signature.
