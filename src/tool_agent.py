@@ -88,17 +88,23 @@ class ToolAgent:
 
             print(Fore.GREEN + f"\nUsing Tool: {tool_name}")
 
-            # Validate and execute the tool call
-            validated_tool_call = validate_arguments(
-                tool_call, json.loads(tool.fn_signature)
-            )
-            print(Fore.GREEN + f"\nTool call dict: \n{validated_tool_call}")
+            try:
+                # Validate and execute the tool call
+                validated_tool_call = validate_arguments(
+                    tool_call, json.loads(tool.fn_signature)
+                )
+                print(Fore.GREEN + f"\nTool call dict: \n{validated_tool_call}")
 
-            result = tool.run(**validated_tool_call["arguments"])
-            print(Fore.GREEN + f"\nTool result: \n{result}")
+                result = tool.run(**validated_tool_call["arguments"])
+                print(Fore.GREEN + f"\nTool result: \n{result}")
 
-            # Store the result using the tool call ID
-            observations[validated_tool_call["id"]] = result
+                # Store the result using the tool call ID
+                observations[validated_tool_call["id"]] = result
+            
+            except (ValueError, TypeError) as e:
+                # Handle invalid inputs by returning an error message
+                observations[tool_call["id"]] = {"error": str(e)}
+                print(Fore.RED + f"\nError: {str(e)}")
 
         return observations
 

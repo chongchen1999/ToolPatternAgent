@@ -93,8 +93,6 @@ def validate_arguments(tool_call: dict, tool_signature: dict) -> dict:
 
     return tool_call
 
-
-# Rest of the code remains the same
 class Tool:
     """
     A class representing a tool that wraps a callable and its signature.
@@ -103,12 +101,14 @@ class Tool:
         name (str): The name of the tool (function).
         fn (Callable): The function that the tool represents.
         fn_signature (str): JSON string representation of the function's signature.
+        tool_definition (dict): The function signature, used for testing.
     """
 
     def __init__(self, name: str, fn: Callable, fn_signature: str):
         self.name = name
         self.fn = fn
         self.fn_signature = fn_signature
+        self.tool_definition = json.loads(fn_signature)  # Store the parsed signature for testing
 
     def __str__(self):
         return self.fn_signature
@@ -125,10 +125,9 @@ class Tool:
         """
         return self.fn(**kwargs)
 
-
 def tool(fn: Callable):
     """
-    A decorator that wraps a function into a Tool object.
+    A decorator that wraps a function into a Tool object and adds a tool_definition attribute.
 
     Args:
         fn (Callable): The function to be wrapped.
@@ -136,11 +135,11 @@ def tool(fn: Callable):
     Returns:
         Tool: A Tool object containing the function, its name, and its signature.
     """
-
-    def wrapper():
-        fn_signature = get_fn_signature(fn)
-        return Tool(
-            name=fn_signature.get("name"), fn=fn, fn_signature=json.dumps(fn_signature)
-        )
-
-    return wrapper()
+    fn_signature = get_fn_signature(fn)
+    
+    # Create the Tool object and assign tool_definition
+    tool_obj = Tool(
+        name=fn_signature.get("name"), fn=fn, fn_signature=json.dumps(fn_signature)
+    )
+    
+    return tool_obj
