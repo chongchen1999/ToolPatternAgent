@@ -1,3 +1,4 @@
+#completions.py
 def completions_create(client, messages: list, model: str) -> str:
     """
     Sends a request to the client's `completions.create` method to interact with the language model.
@@ -10,6 +11,7 @@ def completions_create(client, messages: list, model: str) -> str:
     Returns:
         str: The content of the model's response.
     """
+
     response = client.chat.completions.create(messages=messages, model=model)
     return str(response.choices[0].message.content)
 

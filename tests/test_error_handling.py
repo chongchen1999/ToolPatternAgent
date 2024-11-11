@@ -14,8 +14,6 @@ def run_test():
 
     agent = ToolAgent([add])
     response = agent.run("Add 3.14 and 0.99")
-
-    print("Response:")
     print(response)
 
     assert "error" in str(response).lower(), "Should handle invalid inputs gracefully."

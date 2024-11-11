@@ -1,3 +1,4 @@
+#tool_agent.py
 import json
 import re
 import os
@@ -71,24 +72,23 @@ class ToolAgent:
         return "".join([tool.fn_signature for tool in self.tools])
 
     def process_tool_calls(self, tool_calls_content: list) -> dict:
-        """
-        Processes each tool call, validates arguments, executes the tools, and collects results.
+            """
+            Processes each tool call, validates arguments, executes the tools, and collects results.
 
-        Args:
-            tool_calls_content (list): List of strings, each representing a tool call in JSON format.
+            Args:
+                tool_calls_content (list): List of strings, each representing a tool call in JSON format.
 
-        Returns:
-            dict: A dictionary where the keys are tool call IDs and values are the results from the tools.
-        """
-        observations = {}
-        for tool_call_str in tool_calls_content:
-            tool_call = json.loads(tool_call_str)
-            tool_name = tool_call["name"]
-            tool = self.tools_dict[tool_name]
+            Returns:
+                dict: A dictionary where the keys are tool call IDs and values are the results from the tools.
+            """
+            observations = {}
+            for tool_call_str in tool_calls_content:
+                tool_call = json.loads(tool_call_str)
+                tool_name = tool_call["name"]
+                tool = self.tools_dict[tool_name]
 
-            print(Fore.GREEN + f"\nUsing Tool: {tool_name}")
+                print(Fore.GREEN + f"\nUsing Tool: {tool_name}")
 
-            try:
                 # Validate and execute the tool call
                 validated_tool_call = validate_arguments(
                     tool_call, json.loads(tool.fn_signature)
@@ -100,13 +100,8 @@ class ToolAgent:
 
                 # Store the result using the tool call ID
                 observations[validated_tool_call["id"]] = result
-            
-            except (ValueError, TypeError) as e:
-                # Handle invalid inputs by returning an error message
-                observations[tool_call["id"]] = {"error": str(e)}
-                print(Fore.RED + f"\nError: {str(e)}")
 
-        return observations
+            return observations
 
     def run(
         self,
@@ -121,6 +116,7 @@ class ToolAgent:
         Returns:
             str: The final output after executing the tool and generating a response from the model.
         """
+
         user_prompt = build_prompt_structure(prompt=user_msg, role="user")
 
         tool_chat_history = ChatHistory(
@@ -141,8 +137,9 @@ class ToolAgent:
 
         if tool_calls.found:
             observations = self.process_tool_calls(tool_calls.content)
-            update_chat_history(
-                agent_chat_history, f'f"Observation: {observations}"', "user"
-            )
-
-        return completions_create(self.client, agent_chat_history, self.model)
+            update_chat_history(agent_chat_history, f'f"Observation: {observations}"', "user")
+            return completions_create(self.client, agent_chat_history, self.model)
+        else:
+            res = completions_create(self.client, agent_chat_history, self.model)
+            res += "\nError, no matching tools!"
+            return res

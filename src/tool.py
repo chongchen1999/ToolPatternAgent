@@ -1,3 +1,4 @@
+# tool.py
 import json
 from typing import Callable, List, Dict, Union, get_origin, get_args
 import typing
@@ -36,7 +37,6 @@ def get_fn_signature(fn: Callable) -> dict:
     fn_signature["parameters"]["properties"] = schema
     return fn_signature
 
-
 def validate_arguments(tool_call: dict, tool_signature: dict) -> dict:
     """
     Validates and converts arguments in the input dictionary to match the expected types.
@@ -67,7 +67,10 @@ def validate_arguments(tool_call: dict, tool_signature: dict) -> dict:
         # Handle basic types
         if expected_type in ["int", "str", "bool", "float"]:
             if not isinstance(arg_value, type_mapping[expected_type]):
-                tool_call["arguments"][arg_name] = type_mapping[expected_type](arg_value)
+                try:
+                    tool_call["arguments"][arg_name] = type_mapping[expected_type](arg_value)
+                except (ValueError, TypeError) as e:
+                    raise ValueError(f"Invalid input for argument '{arg_name}': {str(e)}")
         
         # Handle List type
         elif expected_type == "List":
