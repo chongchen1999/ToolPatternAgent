@@ -78,8 +78,8 @@ Tests were developed to verify functionality, input validation, and error handli
 ### Installation
 1. Clone this repository:
 ```bash
-git clone https://github.com/username/llm-tool-pattern.git
-cd llm-tool-pattern
+git clone git@github.com:chongchen1999/ToolPatternAgent.git
+cd examples
 ```
 
 2. Install dependencies:
