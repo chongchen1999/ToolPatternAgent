@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from tool_agent import ToolAgent
 from tool import tool
+import json
 
 @tool
 def analyze_time_series(data: List[Dict[str, Union[str, float]]], 
@@ -88,11 +89,21 @@ agent = ToolAgent([analyze_time_series, clean_dataset])
 
 # Example data
 sample_data = [
-    {"date": "2024-01-01", "value": 100, "category": "A"},
-    {"date": "2024-01-02", "value": 150, "category": "B"},
-    {"date": "2024-01-03", "value": 120, "category": "A"}
+    {"date": "2024-01-01", "value": 10.0, "category": "A"},
+    {"date": "2024-01-02", "value": 15.0, "category": "B"},
+    {"date": "2024-01-03", "value": 12.0, "category": "A"}
 ]
 
 # Example queries
 cleaning_response = agent.run("Clean the dataset and keep date and value columns")
 print(cleaning_response)
+
+raw_string = cleaning_response
+formatted_string = raw_string.replace('\\n', '\n').replace('\\"', '"')
+
+# Writing formatted content to a file
+file_path = "../data/formatted_articles.txt"
+with open(file_path, 'w') as file:
+    file.write(formatted_string)
+
+print(f"Formatted articles have been written to {file_path}")

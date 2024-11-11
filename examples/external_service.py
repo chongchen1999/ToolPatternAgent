@@ -8,6 +8,7 @@ import requests
 from datetime import datetime, timedelta
 from tool_agent import ToolAgent
 from tool import tool
+import json
 
 @tool
 def get_trending_repos(language: str = "", since: str = "daily", limit: int = 10) -> List[Dict]:
@@ -155,22 +156,35 @@ def search_repo_issues(repo_name: str, state: str = "open", label: str = "", lim
     except Exception as e:
         return [{"error": f"Failed to fetch issues: {str(e)}"}]
 
-# Example usage:
+# Ensure the data directory exists
+output_dir = "../data"
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+# Function to save data to a JSON file
+def save_to_file(data, filename):
+    file_path = os.path.join(output_dir, filename)
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+    print(f"Results saved to {file_path}")
+
+# Example usage to save results
 if __name__ == "__main__":
     agent = ToolAgent([get_trending_repos, get_repo_contributors, search_repo_issues])
 
-    # Example queries
+    # Fetch trending Python repositories
     print("\nFetching trending Python repositories:")
     trending_response = agent.run("Find trending Python repositories from the last week")
-    print(trending_response)
+    save_to_file(trending_response, 'trending_repos.json')
 
-    # If we found repositories, get contributors for the first one
+    # Get contributors for the first repository, if available
     if trending_response and isinstance(trending_response, list) and len(trending_response) > 0:
         first_repo = trending_response[0]['name']
         print(f"\nFetching top contributors for {first_repo}:")
         contributors_response = agent.run(f"Get top contributors for {first_repo}")
-        print(contributors_response)
+        save_to_file(contributors_response, f'contributors_{first_repo.replace("/", "_")}.json')
 
+        # Fetch open issues for the first repository
         print(f"\nFetching open issues for {first_repo}:")
         issues_response = agent.run(f"Find open issues in {first_repo} with label 'bug'")
-        print(issues_response)
+        save_to_file(issues_response, f'issues_{first_repo.replace("/", "_")}.json')

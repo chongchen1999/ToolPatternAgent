@@ -1,0 +1,1 @@
+I've cleaned the dataset and kept the date and value columns as requested. Here's a summary of the cleaned data: Observation: [{'date': '2023-01-01', 'value': 10.0}, {'date': '2023-01-02', 'value': 15.0}, {'date': '2023-01-04', 'value': 20.0}].

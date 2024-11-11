@@ -1,0 +1,31 @@
+{
+  "query": "Python",
+  "timestamp": "20241111_172605",
+  "results": [
+    {
+      "title": "Sunsetting Python 2",
+      "url": "https://www.python.org/doc/sunset-python-2/",
+      "score": 1616
+    },
+    {
+      "title": "Grumpy: Go running Python",
+      "url": "https://opensource.googleblog.com/2017/01/grumpy-go-running-python.html",
+      "score": 1411
+    },
+    {
+      "title": "A from-scratch tour of Bitcoin in Python",
+      "url": "https://karpathy.github.io/2021/06/21/blockchain/",
+      "score": 1208
+    },
+    {
+      "title": "Python 3.13 Gets a JIT",
+      "url": "https://tonybaloney.github.io/posts/python-gets-a-jit.html",
+      "score": 1081
+    },
+    {
+      "title": "Prettymaps: Small Python library to draw customized maps from OpenStreetMap data",
+      "url": "https://github.com/marceloprates/prettymaps",
+      "score": 982
+    }
+  ]
+}
