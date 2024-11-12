@@ -108,3 +108,6 @@ agent.register_tool(add)
 result = agent.handle_query("<tool_call>{\"function\": \"add\", \"arguments\": {\"x\": 5, \"y\": 3}}</tool_call>")
 print(result)  # Output: <tool_response>{"result": 8}</tool_response>
 ```
+
+### Video Demo Link
+https://www.youtube.com/watch?v=EM0M8Q2YcbA
